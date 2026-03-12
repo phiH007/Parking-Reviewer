@@ -7,7 +7,7 @@ const Sidebar = () => {
         <span>Home</span>
       </div>
       <div className="sidebar-item">
-        <span>Cars</span>
+        <span>My Cars</span>
       </div>
     </aside>
   );

@@ -2,7 +2,7 @@
 import React from 'react';
 import Header from './components/header';
 import Sidebar from './components/sidebar';
-import MainContent from './components/main';
+import Main from './components/main';
 import './App.css';
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
       <Header />
       <div className="content-layout">
         <Sidebar />
-        <MainContent />
+        <Main />
       </div>
     </div>
   );

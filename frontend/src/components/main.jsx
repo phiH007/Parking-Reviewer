@@ -1,30 +1,30 @@
 import React from 'react';
 
-const MainContent = () => {
+const Main = () => {
   return (
     <main className="main-content">
-      <h2>Welcome to Your MERN Dashboard</h2>
+      <h2>Welcome to Your Car Dashboard</h2>
       
       <div className="card-container">
         <div className="main-card">
-          <h3>Car 1</h3>
+          <h3>IPLE9KS</h3>
           {/* fix me get image worky pls*/}
-          <img src={"Parking Reviewer/frontend/src/assets/2025-nissan-altima.jpg"}/>
+          <img src="../assets/2025-nissan-altima.jpg" />
           <p>Nissan Altima</p>
         </div>
         
         <div className="main-card">
-          <h3>Active Projects</h3>
-          <p>Project data requested via your Express API.</p>
+          <h3>XF13LM</h3>
+          <p>Tesla Model3</p>
         </div>
         
         <div className="main-card">
-          <h3>Server Status</h3>
-          <p>Check Node.js server responsiveness.</p>
+          <h3>ABS213S</h3>
+          <p>Hyundai Sante Fe</p>
         </div>
       </div>
     </main>
   );
 };
 
-export default MainContent;
+export default Main;
