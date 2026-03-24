@@ -1,15 +1,15 @@
 import React from 'react';
+import nissanAltima from '../assets/2025-nissan-altima.jpg';
 
 const Main = () => {
   return (
     <main className="main-content">
       <h2>Welcome to Your Car Dashboard</h2>
-      
+
       <div className="card-container">
         <div className="main-card">
           <h3>IPLE9KS</h3>
-          {/* fix me get image worky pls*/}
-          <img src="../assets/2025-nissan-altima.jpg" />
+          <img src={nissanAltima} alt="Nissan Altima" />
           <p>Nissan Altima</p>
         </div>
         
