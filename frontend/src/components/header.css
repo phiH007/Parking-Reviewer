@@ -1,27 +1,59 @@
 .header {
-  background-color: #b2b2b2;
-  color: #333;
-  padding: 10px 20px;
+  background-color: #ffffff;
+  padding: 0 32px;
+  height: 56px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   z-index: 10;
 }
 
 .header-logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #001772;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.3px;
 }
 
 .header-nav {
   display: flex;
-  gap: 15px;
+  align-items: center;
+  gap: 8px;
 }
 
-.header-nav a {
+.header-nav-link {
   text-decoration: none;
-  color: #555;
+  color: #64748b;
   font-size: 0.9rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.header-nav-link:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.header-nav-link.active {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.header-logout {
+  background: none;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.header-logout:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
 }
