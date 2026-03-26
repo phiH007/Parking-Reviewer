@@ -5,8 +5,8 @@ const Login = () => {
             <h2>Login</h2>
             <form>
                 <div>
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" placeholder="Enter your email" />
+                    <label for="usn">Username:</label>
+                    <input type="text" id="usn" placeholder="Enter your username" />
                 </div>
                 <div>
                     <label for="password">Password:</label>
