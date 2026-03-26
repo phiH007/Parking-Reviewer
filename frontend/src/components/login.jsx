@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './login.css';
 
 const Login = ({ onLogin }) => {
     const [isRegister, setIsRegister] = useState(false);

@@ -1,0 +1,27 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: auto;
+}
+
+.login-box {
+  background-color: hsl(0, 0%, 56%);
+  border-radius: 8px;
+  padding: 40px 36px;
+  width: 20vw;
+  max-width: 400px;
+  border: 1px solid #eaeaea;
+}
+
+.login-box h2 {
+  margin-bottom: 30px;
+  color: #001772;
+  text-align: center;
+}
+
+.login-box label {
+  font-size: 0.85rem;
+  color: #001772;
+}

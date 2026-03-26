@@ -1,0 +1,27 @@
+.header {
+  background-color: #b2b2b2;
+  color: #333;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  z-index: 10;
+}
+
+.header-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #001772;
+}
+
+.header-nav {
+  display: flex;
+  gap: 15px;
+}
+
+.header-nav a {
+  text-decoration: none;
+  color: #555;
+  font-size: 0.9rem;
+}

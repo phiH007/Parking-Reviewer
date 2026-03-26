@@ -1,4 +1,5 @@
 import React from 'react';
+import './main.css';
 import nissanAltima from '../assets/2025-nissan-altima.jpg';
 
 const Main = () => {
