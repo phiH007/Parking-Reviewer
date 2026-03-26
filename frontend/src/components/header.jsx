@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Header = () => {
+const Header = ({ user, onLogout }) => {
   return (
     <header className="header">
       <div className="header-logo">Parking Reviewer</div>
@@ -8,6 +8,9 @@ const Header = () => {
         <a href="#dashboard">Dashboard</a>
         <a href="#users">User</a>
         <a href="#settings">Settings</a>
+        {user && (
+          <button onClick={onLogout}>Logout</button>
+        )}
       </nav>
     </header>
   );
