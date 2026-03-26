@@ -25,7 +25,7 @@ A MERN-stack localhost app where users submit and review badly-parked cars. The 
 
 ### General & Setup
 - [ ] Figure out whos doing what
-- [ ] Database Setup: Create the MongoDB database and collections.
+- [x] Database Setup: Create the MongoDB database and collections.
 - [ ] Data Modeling: Implement the 6 entities (User, CarSubmission, Comment, Violation, CarViolation, Vote).
 - [ ] Relationships: Configure the Many-to-Many relationships (CarViolation and Vote) in the database schema.
 
@@ -40,7 +40,7 @@ A MERN-stack localhost app where users submit and review badly-parked cars. The 
 
 ### Frontend 
 - [~] Basic Structure: `App.jsx`, `main.jsx`, and core components (`header.jsx`, `main.jsx`, `sidebar.jsx`) have been initialized.
-- [ ] Login & Registration: Build the auth screen. The login page **MUST** be the first screen the user sees.
+- [x] Login & Registration: Build the auth screen. The login page **MUST** be the first screen the user sees.
 - [ ] Role-Based Routing: Implement conditional rendering (e.g., using React Router) so users only see screens appropriate for their role.
 - [ ] Admin Dashboard: Create a separate area/functionality for Administrators to manage the platform.
 - [ ] Standard User Interface: Build views for users to read data, and forms to create, update, and delete their own submissions and comments.
