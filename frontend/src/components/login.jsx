@@ -42,20 +42,6 @@ const Login = ({ onLogin }) => {
     return (
         <div className="login-container">
             <div className="login-box">
-<<<<<<< HEAD
-            <h2>Login</h2>
-            <form>
-                <div>
-                    <label for="usn">Username:</label>
-                    <input type="text" id="usn" placeholder="Enter your username" />
-                </div>
-                <div>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" placeholder="Enter your password" />
-                </div>
-                <button type="submit">Login</button>
-             </form>
-=======
                 <h2>{isRegister ? 'Register' : 'Login'}</h2>
                 <form onSubmit={handleSubmit}>
                     <div>
@@ -93,7 +79,6 @@ const Login = ({ onLogin }) => {
                         {isRegister ? 'Log in' : 'Register'}
                     </button>
                 </p>
->>>>>>> adb74f5 (implement user authentication with login and registration features; add dotenv for environment variables; set up MongoDB connection; update frontend to handle user state)
             </div>
         </div>
     );
