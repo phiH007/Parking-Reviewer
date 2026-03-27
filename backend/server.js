@@ -1,14 +1,20 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const { connectDB } = require('./db');
 const authRoutes = require('./routes/auth');
+const carRoutes = require('./routes/cars');
+
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', authRoutes);
+app.use('/api/cars', carRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('Parking Reviewer API');

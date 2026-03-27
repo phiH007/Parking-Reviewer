@@ -1,17 +1,28 @@
 import './header.css';
 
-function Header({ user, onLogout }) {
-  
+function Header({ user, activeTab, setActiveTab, onLogout }) {
   return (
     <header className="header">
       <div className="header-logo">Parking Reviewer</div>
       <nav className="header-nav">
         {user && (
-            <>
-            <a href="#home" className="header-nav-link active">Home</a>
-            <a href="#my-cars" className="header-nav-link">My Cars</a>
+          <>
+            <button
+              type="button"
+              className={`header-nav-link ${activeTab === 'home' ? 'active' : ''}`}
+              onClick={() => setActiveTab('home')}
+            >
+              Home
+            </button>
+            <button
+              type="button"
+              className={`header-nav-link ${activeTab === 'my-cars' ? 'active' : ''}`}
+              onClick={() => setActiveTab('my-cars')}
+            >
+              My Cars
+            </button>
             <button className="header-logout" onClick={onLogout}>Logout</button>
-            </>
+          </>
         )}
       </nav>
     </header>

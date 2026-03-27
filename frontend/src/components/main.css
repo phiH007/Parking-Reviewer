@@ -26,3 +26,22 @@
   border-radius: 4px;
   display: block;
 }
+
+.car-report-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin: 12px 0;
+}
+
+.report-image-preview {
+  margin: 12px 0;
+}
+
+.report-image-preview p {
+  margin: 8px 0 0;
+  color: #475569;
+  font-size: 0.9rem;
+}

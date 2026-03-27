@@ -33,6 +33,7 @@ const Login = ({ onLogin }) => {
                 setMessage('Account created! You can now log in.');
                 setIsRegister(false);
             } else {
+                localStorage.setItem('user', JSON.stringify(data.user));
                 onLogin(data.user);
             }
         } catch {

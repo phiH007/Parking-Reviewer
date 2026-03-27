@@ -1,13 +1,12 @@
 .app-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 56px);
+  min-height: 100vh;
   width: 80vw;
   align-self: center;
 }
 
 .content-layout {
-  display: flex;
   flex: 1;
-  overflow: hidden;
+  min-height: 0;
 }
