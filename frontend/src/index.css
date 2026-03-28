@@ -2,14 +2,69 @@
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #636363;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #111111;
+  background-image: linear-gradient(180deg, #111111 0%, #1f1f1f 45%, #2a2108 100%);
+  color: #f5e7a1;
 }
 
 #root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  color: #ffcc33;
+}
+
+p,
+label,
+li {
+  color: #f3e6a3;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  background-color: #ffcc33;
+  color: #111111;
+  border: 2px solid #a67c00;
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ffd966;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #c89b1d;
+  border-radius: 6px;
+  background-color: #fff8dc;
+  color: #111111;
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
 }

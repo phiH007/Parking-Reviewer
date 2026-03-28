@@ -1,30 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import CarCard from './CarCard';
 import './main.css';
-
-const ViolationTags = ({ carId }) => {
-  const [violations, setViolations] = useState([]);
-
-  useEffect(() => {
-    fetch(`/api/violations/car/${carId}`)
-      .then((res) => res.json())
-      .then((data) => setViolations(data.violations || []));
-  }, [carId]);
-
-  if (violations.length === 0) return null;
-
-  return (
-    <div className="violation-tags">
-      {violations.map((v) => (
-        <span className="violation-tag" key={v._id}>{v.name}</span>
-      ))}
-    </div>
-  );
-};
 
 const Main = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const savedUser = JSON.parse(localStorage.getItem('user'));
+  const userId = savedUser?.id;
 
   useEffect(() => {
     const fetchCars = async () => {
@@ -64,19 +47,7 @@ const Main = () => {
       ) : (
         <div className="card-container">
           {cars.map((car) => (
-            <div className="main-card" key={car._id}>
-              <h3>{car.plate}</h3>
-              {car.imageUrl && (
-                <img
-                  src={car.imageUrl}
-                  alt={`${car.make} ${car.model}`}
-                  className="car-report-image"
-                />
-              )}
-              <p>{car.make} {car.model}</p>
-              <p>{car.reason}</p>
-              <ViolationTags carId={car._id} />
-            </div>
+            <CarCard car={car} key={car._id} userId={userId} />
           ))}
         </div>
       )}

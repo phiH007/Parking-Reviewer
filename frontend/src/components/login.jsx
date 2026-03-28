@@ -66,8 +66,8 @@ const Login = ({ onLogin }) => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    {message && <p style={{ color: 'green' }}>{message}</p>}
+                    {error && <p className="login-error">{error}</p>}
+                    {message && <p className="login-success">{message}</p>}
                     <button type="submit">{isRegister ? 'Register' : 'Login'}</button>
                 </form>
                 <p>
@@ -76,7 +76,7 @@ const Login = ({ onLogin }) => {
                     <button
                         type="button"
                         onClick={() => { setIsRegister(!isRegister); setError(''); setMessage(''); }}
-                        style={{ background: 'none', border: 'none', color: 'blue', cursor: 'pointer', padding: 0 }}
+                        className="login-toggle"
                     >
                         {isRegister ? 'Log in' : 'Register'}
                     </button>
