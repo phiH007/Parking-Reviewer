@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ReportIdiot = ({ onBack, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -9,9 +9,17 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
+  const [availableViolations, setAvailableViolations] = useState([]);
+  const [selectedViolations, setSelectedViolations] = useState([]);
 
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/api/violations')
+      .then((res) => res.json())
+      .then((data) => setAvailableViolations(data.violations || []));
+  }, []);
 
   const savedUser = JSON.parse(localStorage.getItem('user'));
   const userId = savedUser?.id;
@@ -47,6 +55,14 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
     setImagePreviewUrl(URL.createObjectURL(file));
   };
 
+  const handleViolationToggle = (violationId) => {
+    setSelectedViolations((prev) =>
+      prev.includes(violationId)
+        ? prev.filter((id) => id !== violationId)
+        : [...prev, violationId]
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
@@ -75,15 +91,22 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
         throw new Error(data.error || 'Failed to report car');
       }
 
+      // Tag selected violations on the new car
+      await Promise.all(
+        selectedViolations.map((violationId) =>
+          fetch('/api/violations/car', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ carId: data.carId, violationId, userId }),
+          })
+        )
+      );
+
       setMessage('Car reported successfully.');
-      setFormData({
-        plate: '',
-        make: '',
-        model: '',
-        reason: '',
-      });
+      setFormData({ plate: '', make: '', model: '', reason: '' });
       setImageFile(null);
       setImagePreviewUrl('');
+      setSelectedViolations([]);
 
       if (onSuccess) {
         onSuccess();
@@ -126,6 +149,21 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
           onChange={handleChange}
           placeholder="Reason"
         />
+        {availableViolations.length > 0 && (
+          <div className="violation-checkboxes">
+            <p>Violation Types:</p>
+            {availableViolations.map((v) => (
+              <label key={v._id} className="violation-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={selectedViolations.includes(v._id)}
+                  onChange={() => handleViolationToggle(v._id)}
+                />
+                {v.name}
+              </label>
+            ))}
+          </div>
+        )}
         <input
           type="file"
           accept=".png,.jpg,.jpeg,image/png,image/jpeg"

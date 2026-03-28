@@ -4,6 +4,7 @@ const path = require('path');
 const { connectDB } = require('./db');
 const authRoutes = require('./routes/auth');
 const carRoutes = require('./routes/cars');
+const violationRoutes = require('./routes/violations');
 
 
 const app = express();
@@ -14,6 +15,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
+app.use('/api/violations', violationRoutes);
 
 
 app.get('/', (req, res) => {

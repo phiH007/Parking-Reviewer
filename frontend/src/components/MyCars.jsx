@@ -1,6 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import ReportIdiot from './ReportIdiot';
 
+const ViolationTags = ({ carId }) => {
+  const [violations, setViolations] = useState([]);
+
+  useEffect(() => {
+    fetch(`/api/violations/car/${carId}`)
+      .then((res) => res.json())
+      .then((data) => setViolations(data.violations || []));
+  }, [carId]);
+
+  if (violations.length === 0) return null;
+
+  return (
+    <div className="violation-tags">
+      {violations.map((v) => (
+        <span className="violation-tag" key={v._id}>{v.name}</span>
+      ))}
+    </div>
+  );
+};
+
 const MyCars = () => {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +100,7 @@ const MyCars = () => {
               )}
               <p>{car.make} {car.model}</p>
               <p>{car.reason}</p>
+              <ViolationTags carId={car._id} />
             </div>
           ))}
         </div>
