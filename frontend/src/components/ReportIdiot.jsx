@@ -5,7 +5,6 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
     plate: '',
     make: '',
     model: '',
-    reason: '',
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
@@ -74,8 +73,6 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
       payload.append('plate', formData.plate);
       payload.append('make', formData.make);
       payload.append('model', formData.model);
-      payload.append('reason', formData.reason);
-
       if (imageFile) {
         payload.append('image', imageFile);
       }
@@ -103,7 +100,7 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
       );
 
       setMessage('Car reported successfully.');
-      setFormData({ plate: '', make: '', model: '', reason: '' });
+      setFormData({ plate: '', make: '', model: '' });
       setImageFile(null);
       setImagePreviewUrl('');
       setSelectedViolations([]);
@@ -142,12 +139,6 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
           value={formData.model}
           onChange={handleChange}
           placeholder="Model"
-        />
-        <textarea
-          name="reason"
-          value={formData.reason}
-          onChange={handleChange}
-          placeholder="Reason"
         />
         {availableViolations.length > 0 && (
           <div className="violation-checkboxes">
