@@ -1,54 +1,50 @@
-const { Router } = require('express');
+const express = require('express');
+const router = express.Router();
 const { getDB } = require('../db');
+// POST /api/auth/register  
 
-const router = Router();
 
-// POST /api/auth/register
+// Just grabs the body and tosses it in the DB, exactly like our player POST route
 router.post('/register', async (req, res) => {
-  const { username, password, role = 'user' } = req.body;
+    try {
+      const db = getDB();
+      let collection = db.collection("users");
+      
+      // adding a default role just so we have it
+      let newUser = req.body;
+      newUser.role = 'user'; 
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required.' });
-  }
-
-  const db = getDB();
-  const users = db.collection('users');
-
-  const existing = await users.findOne({ username });
-  if (existing) {
-    return res.status(409).json({ error: 'Username already taken.' });
-  }
-
-  const result = await users.insertOne({
-    username,
-    password,
-    role: role === 'admin' ? 'admin' : 'user',
-    createdAt: new Date(),
-  });
-
-  res.status(201).json({ message: 'User created.', userId: result.insertedId });
+      // Note: I added 'await' here! I noticed in server.js we forgot 'await' 
+      // on insertOne, so I made sure to include it here so it doesn't break.
+      let result = await collection.insertOne(newUser);
+      res.send(result);
+    }
+    catch(e) {
+        console.log(e);
+        res.send("Error");
+    }
 });
 
 // POST /api/auth/login
+// Uses the req.body to find a match, mimicking how we look up players
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required.' });
+  try {
+    const db = getDB();
+    let collection = db.collection("users");
+      
+      // This will look for a document that perfectly matches the {username, password} in req.body
+    let result = await collection.find(req.body).toArray();
+    
+    if(result.length > 0) {
+        res.json(result[0]); // Send back the user data if they exist
+    } else {
+        res.send("Invalid Login");
+    }
   }
-
-  const db = getDB();
-  const users = db.collection('users');
-
-  const user = await users.findOne({ username, password });
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid username or password.' });
-  }
-
-  res.json({
-    message: 'Login successful.',
-    user: { id: user._id, username: user.username, role: user.role },
-  });
+    catch(e) {
+        console.log(e);
+        res.send("Error");
+    }
 });
 
 module.exports = router;

@@ -1,101 +1,73 @@
-const { Router } = require('express');
-const { getDB } = require('../db');
+const express = require('express');
 const { ObjectId } = require('mongodb');
+const { getDB } = require('../db');
+const router = express.Router();
 
-const router = Router();
-
-// GET /api/violations - get all violation types (public)
+// GET /api/violations (Get the master list of options)
 router.get('/', async (req, res) => {
-  const db = getDB();
-  const violations = await db.collection('violations').find().toArray();
-  res.json({ violations });
+  try {
+    const db = getDB();
+    const violations = await db.collection('violations').find().toArray();
+    res.json({ violations });
+  } catch (e) {
+    console.log(e); res.send("Error");
+  }
 });
 
-// POST /api/violations - add a new violation type (admin only)
+// POST /api/violations (Admin adds a new type of violation)
 router.post('/', async (req, res) => {
-  const { name, requestingUserRole } = req.body;
-
-  if (requestingUserRole !== 'admin') {
-    return res.status(403).json({ error: 'Only admins can add violation types.' });
+  try {
+    if (req.body.requestingUserRole !== 'admin') return res.status(403).send("Admin only");
+    const db = getDB();
+    let result = await db.collection('violations').insertOne({ name: req.body.name });
+    res.send(result);
+  } catch (e) {
+    console.log(e); res.send("Error");
   }
-
-  if (!name) {
-    return res.status(400).json({ error: 'Violation name is required.' });
-  }
-
-  const db = getDB();
-  const existing = await db.collection('violations').findOne({ name });
-  if (existing) {
-    return res.status(409).json({ error: 'Violation type already exists.' });
-  }
-
-  const result = await db.collection('violations').insertOne({ name });
-  res.status(201).json({ message: 'Violation added.', violationId: result.insertedId });
 });
 
-// DELETE /api/violations/:id - remove a violation type (admin only)
+// DELETE /api/violations/:id (Admin removes a violation type)
 router.delete('/:id', async (req, res) => {
-  const { requestingUserRole } = req.body;
-
-  if (requestingUserRole !== 'admin') {
-    return res.status(403).json({ error: 'Only admins can remove violation types.' });
+  try {
+    if (req.body.requestingUserRole !== 'admin') return res.status(403).send("Admin only");
+    const db = getDB();
+    await db.collection('violations').deleteOne({ _id: new ObjectId(req.params.id) });
+    res.send("Deleted");
+  } catch (e) {
+    console.log(e); res.send("Error");
   }
-
-  const db = getDB();
-  const violation = await db.collection('violations').findOne({ _id: new ObjectId(req.params.id) });
-  if (!violation) return res.status(404).json({ error: 'Violation not found.' });
-
-  await db.collection('violations').deleteOne({ _id: new ObjectId(req.params.id) });
-  res.json({ message: 'Violation removed.' });
 });
 
-// POST /api/violations/car - tag a car with a violation (logged-in users)
+// POST /api/violations/car (Tag a specific car)
 router.post('/car', async (req, res) => {
-  const { carId, violationId, userId } = req.body;
-
-  if (!carId || !violationId || !userId) {
-    return res.status(400).json({ error: 'carId, violationId, and userId are required.' });
+  try {
+    const db = getDB();
+    let newTag = {
+      carId: new ObjectId(req.body.carId),
+      violationId: new ObjectId(req.body.violationId),
+      violationName: req.body.violationName, // <-- We save the name directly here now!
+      taggedBy: req.body.userId,
+      createdAt: new Date()
+    };
+    await db.collection('carViolations').insertOne(newTag);
+    res.send("Tagged");
+  } catch (e) {
+    console.log(e); res.send("Error");
   }
-
-  const db = getDB();
-
-  const car = await db.collection('cars').findOne({ _id: new ObjectId(carId) });
-  if (!car) return res.status(404).json({ error: 'Car not found.' });
-
-  const violation = await db.collection('violations').findOne({ _id: new ObjectId(violationId) });
-  if (!violation) return res.status(404).json({ error: 'Violation not found.' });
-
-  const existing = await db.collection('carViolations').findOne({
-    carId: new ObjectId(carId),
-    violationId: new ObjectId(violationId),
-  });
-  if (existing) return res.status(409).json({ error: 'This violation is already tagged on this car.' });
-
-  await db.collection('carViolations').insertOne({
-    carId: new ObjectId(carId),
-    violationId: new ObjectId(violationId),
-    taggedBy: userId,
-    createdAt: new Date(),
-  });
-
-  res.status(201).json({ message: 'Violation tagged on car.' });
 });
 
-// GET /api/violations/car/:carId - get all violations for a specific car (public)
+// GET /api/violations/car/:carId (Get violations for a car)
 router.get('/car/:carId', async (req, res) => {
-  const db = getDB();
-
-  const carViolations = await db.collection('carViolations')
-    .find({ carId: new ObjectId(req.params.carId) })
-    .toArray();
-
-  const violationIds = carViolations.map((cv) => cv.violationId);
-
-  const violations = await db.collection('violations')
-    .find({ _id: { $in: violationIds } })
-    .toArray();
-
-  res.json({ violations });
+  try {
+    const db = getDB();
+    // Because we saved the name in the POST route, we just return this directly! No joins needed.
+    const carViolations = await db.collection('carViolations')
+      .find({ carId: new ObjectId(req.params.carId) })
+      .toArray();
+    res.json({ violations: carViolations });
+  } catch (e) {
+    console.log(e); res.send("Error");
+  }
 });
 
 module.exports = router;
