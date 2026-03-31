@@ -14,16 +14,24 @@ function Header(props) {
     setActiveTab('my-cars');
   }
 
+  function goToAdmin() {
+    setActiveTab('admin');
+  }
+
   function handleLogoutClick() {
     onLogout();
   }
 
   return (
     <header className="header">
-      <div className="header-logo">Parking Reviewer</div>
+      <div className="header-logo">Parking Reviewer Project</div>
 
       {user ? (
         <nav className="header-nav">
+          <span className="header-user-role">
+            {user.username} ({user.role})
+          </span>
+
           <button
             type="button"
             className={`header-nav-link ${activeTab === 'home' ? 'active' : ''}`}
@@ -39,6 +47,16 @@ function Header(props) {
           >
             My Cars
           </button>
+
+          {user.role === 'admin' ? (
+            <button
+              type="button"
+              className={`header-nav-link ${activeTab === 'admin' ? 'active' : ''}`}
+              onClick={goToAdmin}
+            >
+              Admin
+            </button>
+          ) : <></>}
 
           <button
             type="button"

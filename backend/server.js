@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { connectDB, getDB } = require('./db');
-const { seedViolations } = require('./seed');
+const { seedViolations, seedDefaultAdmin } = require('./seed');
 const authRoutes = require('./routes/auth');
 const carRoutes = require('./routes/cars');
 const violationRoutes = require('./routes/violations');
@@ -29,6 +29,7 @@ app.get('/', (req, res) => {
 
 connectDB().then(async () => {
   await seedViolations(getDB());
+  await seedDefaultAdmin(getDB());
   app.listen(PORT, () => {
     console.log('Now listening on port ' + PORT);
   });

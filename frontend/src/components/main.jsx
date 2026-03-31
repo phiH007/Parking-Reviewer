@@ -12,10 +12,18 @@ function Main() {
 
   return (
     <main className="main-content">
-      <h2>All Reported Cars</h2>
-      {cars.length === 0 ? <p>Loading or no cars...</p> : (
+      <h2>Cars People Reported</h2>
+      {cars.length === 0 ? <p>No cars yet, or still loading.</p> : (
         <div className="card-container">
-          {cars.map(item => <CarCard car={item} key={item._id} user={savedUser} />)}
+          {cars.map(item => (
+            <CarCard
+              car={item}
+              key={item._id}
+              user={savedUser}
+              showDelete={true}
+              onCarDeleted={(id) => setCars(cars.filter(car => car._id !== id))}
+            />
+          ))}
         </div>
       )}
     </main>

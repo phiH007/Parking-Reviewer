@@ -7,6 +7,7 @@ function Login(props) {
   const [isRegister, setIsRegister] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('standard');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
@@ -22,6 +23,7 @@ function Login(props) {
     setIsRegister(!isRegister);
     setError('');
     setMessage('');
+    setRole('standard');
   }
 
   async function handleSubmit(e) {
@@ -39,6 +41,10 @@ function Login(props) {
         username: username,
         password: password,
       };
+
+      if (isRegister) {
+        doc.role = role;
+      }
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -64,6 +70,7 @@ function Login(props) {
       if (isRegister) {
         setMessage('Account created! You can now log in.');
         setIsRegister(false);
+        setRole('standard');
         return;
       }
 
@@ -103,6 +110,20 @@ function Login(props) {
               onChange={handlePasswordChange}
             />
           </div>
+
+          {isRegister ? (
+            <div>
+              <label htmlFor="role">Role:</label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option value="standard">Standard</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          ) : <></>}
 
           {error ? <p className="login-error">{error}</p> : <></>}
           {message ? <p className="login-success">{message}</p> : <></>}
