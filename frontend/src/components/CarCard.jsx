@@ -1,38 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-function ViolationTags({ carId }) {
+function ViolationTags(props) {
+  const carId = props.carId;
   const [violations, setViolations] = useState([]);
 
   useEffect(() => {
-    async function loadViolations() {
+    async function fetchViolations() {
       try {
         const response = await fetch(`/api/violations/car/${carId}`);
-        const data = await response.json();
-        setViolations(data.violations || []);
+        const theJson = await response.json();
+        setViolations(theJson.violations || []);
       } catch (error) {
         setViolations([]);
       }
     }
 
-    loadViolations();
+    fetchViolations();
   }, [carId]);
 
   if (violations.length === 0) {
-    return null;
+    return <></>;
   }
 
   return (
     <div className="violation-tags">
-      {violations.map((violation) => (
-        <span className="violation-tag" key={violation._id}>
-          {violation.name}
-        </span>
+      {violations.map((item) => (
+        <span className="violation-tag" key={item._id}>{item.name}</span>
       ))}
     </div>
   );
 }
 
-function VoteSection({ carId, userId }) {
+function VoteSection(props) {
+  const carId = props.carId;
+  const userId = props.userId;
+
   const [upvotes, setUpvotes] = useState(0);
   const [downvotes, setDownvotes] = useState(0);
   const [score, setScore] = useState(0);
@@ -40,94 +42,116 @@ function VoteSection({ carId, userId }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    async function loadVotes() {
+    async function fetchVotes() {
       try {
-        setError('');
-
         let url = `/api/votes/car/${carId}`;
+
         if (userId) {
-          url = `${url}?userId=${userId}`;
+          url = `/api/votes/car/${carId}?userId=${userId}`;
         }
 
         const response = await fetch(url);
-        const data = await response.json();
+        const theJson = await response.json();
 
         if (!response.ok) {
-          setError(data.error || 'Could not load votes.');
+          setError(theJson.error || 'Could not load votes.');
           return;
         }
 
-        setUpvotes(data.upvotes || 0);
-        setDownvotes(data.downvotes || 0);
-        setScore(data.score || 0);
-        setCurrentUserVote(data.currentUserVote || 0);
+        setError('');
+        setUpvotes(theJson.upvotes || 0);
+        setDownvotes(theJson.downvotes || 0);
+        setScore(theJson.score || 0);
+        setCurrentUserVote(theJson.currentUserVote || 0);
       } catch (loadError) {
         setError('Could not load votes.');
       }
     }
 
-    loadVotes();
+    fetchVotes();
   }, [carId, userId]);
 
-  async function handleVote(value) {
+  async function saveVote(value) {
     if (!userId) {
       setError('Log in to vote on a car.');
       return;
     }
 
     try {
-      setError('');
+      const doc = {
+        carId: carId,
+        userId: userId,
+        value: value,
+      };
 
       const response = await fetch('/api/votes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ carId, userId, value }),
+        body: JSON.stringify(doc),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
-      const data = await response.json();
+      const theJson = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Could not save vote.');
+        setError(theJson.error || 'Could not save vote.');
         return;
       }
 
-      setUpvotes(data.upvotes || 0);
-      setDownvotes(data.downvotes || 0);
-      setScore(data.score || 0);
-      setCurrentUserVote(data.currentUserVote || 0);
+      setError('');
+      setUpvotes(theJson.upvotes || 0);
+      setDownvotes(theJson.downvotes || 0);
+      setScore(theJson.score || 0);
+      setCurrentUserVote(theJson.currentUserVote || 0);
     } catch (saveError) {
       setError('Could not save vote.');
     }
   }
 
+  function handleUpvoteClick() {
+    saveVote(1);
+  }
+
+  function handleDownvoteClick() {
+    saveVote(-1);
+  }
+
   return (
     <div className="card-section">
       <h4>Votes</h4>
+
       <div className="vote-row">
         <button
           type="button"
           className={`vote-button ${currentUserVote === 1 ? 'selected' : ''}`}
-          onClick={() => handleVote(1)}
+          onClick={handleUpvoteClick}
         >
           Upvote
         </button>
+
         <button
           type="button"
           className={`vote-button ${currentUserVote === -1 ? 'selected' : ''}`}
-          onClick={() => handleVote(-1)}
+          onClick={handleDownvoteClick}
         >
           Downvote
         </button>
       </div>
+
       <p className="vote-summary">
         Score: {score} | Upvotes: {upvotes} | Downvotes: {downvotes}
       </p>
-      {error && <p className="card-message error-text">{error}</p>}
+
+      {error ? <p className="card-message error-text">{error}</p> : <></>}
     </div>
   );
 }
 
-function CommentSection({ carId, userId }) {
+function CommentSection(props) {
+  const carId = props.carId;
+  const userId = props.userId;
+
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
   const [error, setError] = useState('');
@@ -135,29 +159,41 @@ function CommentSection({ carId, userId }) {
   const [showCommentForm, setShowCommentForm] = useState(false);
 
   useEffect(() => {
-    async function loadComments() {
+    async function fetchComments() {
       try {
-        setError('');
-
         const response = await fetch(`/api/comments/car/${carId}`);
-        const data = await response.json();
+        const theJson = await response.json();
 
         if (!response.ok) {
-          setError(data.error || 'Could not load comments.');
+          setError(theJson.error || 'Could not load comments.');
           return;
         }
 
-        setComments(data.comments || []);
+        setError('');
+        setComments(theJson.comments || []);
       } catch (loadError) {
         setError('Could not load comments.');
       }
     }
 
-    loadComments();
+    fetchComments();
   }, [carId]);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
+  function handleCommentTextChange(e) {
+    setCommentText(e.target.value);
+  }
+
+  function handleToggleComments() {
+    setShowComments(!showComments);
+  }
+
+  function handleToggleCommentForm() {
+    setShowCommentForm(!showCommentForm);
+    setError('');
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
 
     if (!userId) {
       setError('Log in to leave a comment.');
@@ -165,26 +201,29 @@ function CommentSection({ carId, userId }) {
     }
 
     try {
-      setError('');
+      const doc = {
+        carId: carId,
+        userId: userId,
+        text: commentText,
+      };
 
       const response = await fetch('/api/comments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          carId,
-          userId,
-          text: commentText,
-        }),
+        body: JSON.stringify(doc),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
-      const data = await response.json();
+      const theJson = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Could not save comment.');
+        setError(theJson.error || 'Could not save comment.');
         return;
       }
 
-      setComments([data.comment, ...comments]);
+      setError('');
+      setComments([theJson.comment, ...comments]);
       setCommentText('');
       setShowComments(true);
       setShowCommentForm(false);
@@ -195,23 +234,23 @@ function CommentSection({ carId, userId }) {
 
   async function handleDeleteComment(commentId) {
     try {
-      setError('');
-
       const response = await fetch(`/api/comments/${commentId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId: userId }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
-      const data = await response.json();
+      const theJson = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Could not delete comment.');
+        setError(theJson.error || 'Could not delete comment.');
         return;
       }
 
-      const nextComments = comments.filter((comment) => comment._id !== commentId);
-      setComments(nextComments);
+      setError('');
+      setComments(comments.filter((item) => item._id !== commentId));
     } catch (deleteError) {
       setError('Could not delete comment.');
     }
@@ -223,7 +262,7 @@ function CommentSection({ carId, userId }) {
         <button
           type="button"
           className="comment-toggle-button"
-          onClick={() => setShowComments(!showComments)}
+          onClick={handleToggleComments}
         >
           {showComments ? 'Hide Comments' : `Show Comments (${comments.length})`}
         </button>
@@ -231,79 +270,88 @@ function CommentSection({ carId, userId }) {
         <button
           type="button"
           className="comment-add-button"
-          onClick={() => {
-            setShowCommentForm(!showCommentForm);
-            setError('');
-          }}
+          onClick={handleToggleCommentForm}
         >
           +
         </button>
       </div>
 
-      {showCommentForm && (
+      {showCommentForm ? (
         <form className="comment-form" onSubmit={handleSubmit}>
           <textarea
             value={commentText}
-            onChange={(event) => setCommentText(event.target.value)}
+            onChange={handleCommentTextChange}
             placeholder="Write a short comment"
           />
           <button type="submit">Add Comment</button>
         </form>
-      )}
+      ) : <></>}
 
-      {error && <p className="card-message error-text">{error}</p>}
+      {error ? <p className="card-message error-text">{error}</p> : <></>}
 
-      {showComments && comments.length === 0 && (
-        <p className="card-message">No comments yet.</p>
-      )}
+      {showComments ? (
+        comments.length === 0 ? (
+          <p className="card-message">No comments yet.</p>
+        ) : (
+          <div className="comment-list">
+            {comments.map((item) => (
+              <div className="comment-box" key={item._id}>
+                <p className="comment-name">{item.username}</p>
+                <p className="comment-text">{item.text}</p>
 
-      {showComments && comments.length > 0 && (
-        <div className="comment-list">
-          {comments.map((comment) => (
-            <div className="comment-box" key={comment._id}>
-              <p className="comment-name">{comment.username}</p>
-              <p className="comment-text">{comment.text}</p>
-              {comment.userId === userId && (
-                <button
-                  type="button"
-                  className="delete-button"
-                  onClick={() => handleDeleteComment(comment._id)}
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+                {item.userId === userId ? (
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() => handleDeleteComment(item._id)}
+                  >
+                    Delete
+                  </button>
+                ) : <></>}
+              </div>
+            ))}
+          </div>
+        )
+      ) : <></>}
     </div>
   );
 }
 
-function CarCard({ car, userId, onCarDeleted, showDelete = false }) {
+function CarCard(props) {
+  const car = props.car;
+  const userId = props.userId;
+  const onCarDeleted = props.onCarDeleted;
+  const showDelete = props.showDelete || false;
+
   const [deleteError, setDeleteError] = useState('');
 
   async function handleDeleteCar() {
     const confirmed = window.confirm('Are you sure you want to delete this submission?');
+
     if (!confirmed) {
       return;
     }
 
     try {
-      setDeleteError('');
-
       const response = await fetch(`/api/cars/${car._id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, requestingUserRole: 'user' }),
+        body: JSON.stringify({
+          userId: userId,
+          requestingUserRole: 'user',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
-      const data = await response.json();
+      const theJson = await response.json();
 
       if (!response.ok) {
-        setDeleteError(data.error || 'Could not delete car.');
+        setDeleteError(theJson.error || 'Could not delete car.');
         return;
       }
+
+      setDeleteError('');
 
       if (onCarDeleted) {
         onCarDeleted(car._id);
@@ -315,7 +363,7 @@ function CarCard({ car, userId, onCarDeleted, showDelete = false }) {
 
   return (
     <div className="main-card" style={{ position: 'relative' }}>
-      {showDelete && car.userId === userId && (
+      {showDelete && car.userId === userId ? (
         <button
           type="button"
           className="delete-button card-delete-corner"
@@ -323,24 +371,24 @@ function CarCard({ car, userId, onCarDeleted, showDelete = false }) {
         >
           Delete
         </button>
-      )}
+      ) : <></>}
 
       <h3>{car.plate}</h3>
 
-      {car.imageUrl && (
+      {car.imageUrl ? (
         <img
           src={car.imageUrl}
           alt={`${car.make} ${car.model}`}
           className="car-report-image"
         />
-      )}
+      ) : <></>}
 
       <p>{car.make} {car.model}</p>
-      {car.reason && <p>{car.reason}</p>}
+      {car.reason ? <p>{car.reason}</p> : <></>}
 
       <ViolationTags carId={car._id} />
 
-      {deleteError && <p className="card-message error-text">{deleteError}</p>}
+      {deleteError ? <p className="card-message error-text">{deleteError}</p> : <></>}
 
       <VoteSection carId={car._id} userId={userId} />
       <CommentSection carId={car._id} userId={userId} />

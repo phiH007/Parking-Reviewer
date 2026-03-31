@@ -1,37 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-const ReportIdiot = ({ onBack, onSuccess }) => {
-  const [formData, setFormData] = useState({
-    plate: '',
-    make: '',
-    model: '',
-  });
+function ReportIdiot(props) {
+  const onBack = props.onBack;
+  const onSuccess = props.onSuccess;
+
+  const [plate, setPlate] = useState('');
+  const [make, setMake] = useState('');
+  const [model, setModel] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
   const [availableViolations, setAvailableViolations] = useState([]);
   const [selectedViolations, setSelectedViolations] = useState([]);
-
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
+  const savedUser = JSON.parse(localStorage.getItem('user'));
+  const userId = savedUser ? savedUser.id : '';
+
   useEffect(() => {
-    fetch('/api/violations')
-      .then((res) => res.json())
-      .then((data) => setAvailableViolations(data.violations || []));
+    async function fetchViolations() {
+      try {
+        const response = await fetch('/api/violations');
+        const theJson = await response.json();
+        setAvailableViolations(theJson.violations || []);
+      } catch (errorObject) {
+        setAvailableViolations([]);
+      }
+    }
+
+    fetchViolations();
   }, []);
 
-  const savedUser = JSON.parse(localStorage.getItem('user'));
-  const userId = savedUser?.id;
+  function handlePlateChange(e) {
+    setPlate(e.target.value);
+  }
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  function handleMakeChange(e) {
+    setMake(e.target.value);
+  }
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
+  function handleModelChange(e) {
+    setModel(e.target.value);
+  }
+
+  function handleImageChange(e) {
+    const file = e.target.files ? e.target.files[0] : null;
 
     if (!file) {
       setImageFile(null);
@@ -39,7 +52,7 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
       return;
     }
 
-    if (!['image/png', 'image/jpeg'].includes(file.type)) {
+    if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
       setError('Please upload a PNG or JPG image.');
       return;
     }
@@ -52,55 +65,63 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
     setError('');
     setImageFile(file);
     setImagePreviewUrl(URL.createObjectURL(file));
-  };
+  }
 
-  const handleViolationToggle = (violationId) => {
-    setSelectedViolations((prev) =>
-      prev.includes(violationId)
-        ? prev.filter((id) => id !== violationId)
-        : [...prev, violationId]
-    );
-  };
+  function handleViolationToggle(violationId) {
+    if (selectedViolations.includes(violationId)) {
+      setSelectedViolations(selectedViolations.filter((item) => item !== violationId));
+      return;
+    }
 
-  const handleSubmit = async (e) => {
+    setSelectedViolations([...selectedViolations, violationId]);
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
     setMessage('');
     setError('');
 
     try {
-      const payload = new FormData();
-      payload.append('userId', userId);
-      payload.append('plate', formData.plate);
-      payload.append('make', formData.make);
-      payload.append('model', formData.model);
+      const formData = new FormData();
+      formData.append('userId', userId);
+      formData.append('plate', plate);
+      formData.append('make', make);
+      formData.append('model', model);
+
       if (imageFile) {
-        payload.append('image', imageFile);
+        formData.append('image', imageFile);
       }
 
-      const res = await fetch('/api/cars', {
+      const response = await fetch('/api/cars', {
         method: 'POST',
-        body: payload,
+        body: formData,
       });
 
-      const data = await res.json();
+      const theJson = await response.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to report car');
+      if (!response.ok) {
+        setError(theJson.error || 'Failed to report car');
+        return;
       }
 
-      // Tag selected violations on the new car
-      await Promise.all(
-        selectedViolations.map((violationId) =>
-          fetch('/api/violations/car', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ carId: data.carId, violationId, userId }),
-          })
-        )
-      );
+      for (const violationId of selectedViolations) {
+        await fetch('/api/violations/car', {
+          method: 'POST',
+          body: JSON.stringify({
+            carId: theJson.carId,
+            violationId: violationId,
+            userId: userId,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
 
       setMessage('Car reported successfully.');
-      setFormData({ plate: '', make: '', model: '' });
+      setPlate('');
+      setMake('');
+      setModel('');
       setImageFile(null);
       setImagePreviewUrl('');
       setSelectedViolations([]);
@@ -108,10 +129,10 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
       if (onSuccess) {
         onSuccess();
       }
-    } catch (err) {
-      setError(err.message);
+    } catch (errorObject) {
+      setError('Failed to report car');
     }
-  };
+  }
 
   return (
     <main className="main-content">
@@ -124,55 +145,66 @@ const ReportIdiot = ({ onBack, onSuccess }) => {
       <form onSubmit={handleSubmit}>
         <input
           name="plate"
-          value={formData.plate}
-          onChange={handleChange}
+          value={plate}
+          onChange={handlePlateChange}
           placeholder="License Plate"
         />
+
         <input
           name="make"
-          value={formData.make}
-          onChange={handleChange}
+          value={make}
+          onChange={handleMakeChange}
           placeholder="Make"
         />
+
         <input
           name="model"
-          value={formData.model}
-          onChange={handleChange}
+          value={model}
+          onChange={handleModelChange}
           placeholder="Model"
         />
-        {availableViolations.length > 0 && (
+
+        {availableViolations.length > 0 ? (
           <div className="violation-checkboxes">
             <p>Violation Types:</p>
-            {availableViolations.map((v) => (
-              <label key={v._id} className="violation-checkbox-label">
+
+            {availableViolations.map((item) => (
+              <label key={item._id} className="violation-checkbox-label">
                 <input
                   type="checkbox"
-                  checked={selectedViolations.includes(v._id)}
-                  onChange={() => handleViolationToggle(v._id)}
+                  checked={selectedViolations.includes(item._id)}
+                  onChange={() => handleViolationToggle(item._id)}
                 />
-                {v.name}
+                {item.name}
               </label>
             ))}
           </div>
-        )}
+        ) : <></>}
+
         <input
           type="file"
           accept=".png,.jpg,.jpeg,image/png,image/jpeg"
           onChange={handleImageChange}
         />
-        {imagePreviewUrl && (
+
+        {imagePreviewUrl ? (
           <div className="report-image-preview">
-            <img src={imagePreviewUrl} alt="Selected car" className="car-report-image" />
-            <p>{imageFile?.name}</p>
+            <img
+              src={imagePreviewUrl}
+              alt="Selected car"
+              className="car-report-image"
+            />
+            <p>{imageFile ? imageFile.name : ''}</p>
           </div>
-        )}
+        ) : <></>}
+
         <button type="submit">Submit Report</button>
       </form>
 
-      {message && <p>{message}</p>}
-      {error && <p>{error}</p>}
+      {message ? <p>{message}</p> : <></>}
+      {error ? <p>{error}</p> : <></>}
     </main>
   );
-};
+}
 
 export default ReportIdiot;

@@ -1,41 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CarCard from './CarCard';
 import './main.css';
 
-const Main = () => {
+function Main() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
   const savedUser = JSON.parse(localStorage.getItem('user'));
-  const userId = savedUser?.id;
+  const userId = savedUser ? savedUser.id : '';
 
   useEffect(() => {
-    const fetchCars = async () => {
+    async function fetchCars() {
       try {
-        const res = await fetch('/api/cars');
-        const data = await res.json();
+        const response = await fetch('/api/cars');
+        const theJson = await response.json();
 
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to load cars');
+        if (!response.ok) {
+          setError(theJson.error || 'Failed to load cars');
+          setLoading(false);
+          return;
         }
 
-        setCars(data.cars);
-      } catch (err) {
-        setError(err.message);
-      } finally {
+        setCars(theJson.cars || []);
+        setError('');
+        setLoading(false);
+      } catch (errorObject) {
+        setError('Failed to load cars');
         setLoading(false);
       }
-    };
+    }
 
     fetchCars();
   }, []);
 
   if (loading) {
-    return <main className="main-content"><p>Loading reported cars...</p></main>;
+    return (
+      <main className="main-content">
+        <p>Loading reported cars...</p>
+      </main>
+    );
   }
 
   if (error) {
-    return <main className="main-content"><p>{error}</p></main>;
+    return (
+      <main className="main-content">
+        <p>{error}</p>
+      </main>
+    );
   }
 
   return (
@@ -46,13 +58,13 @@ const Main = () => {
         <p>No cars have been reported yet.</p>
       ) : (
         <div className="card-container">
-          {cars.map((car) => (
-            <CarCard car={car} key={car._id} userId={userId} />
+          {cars.map((item) => (
+            <CarCard car={item} key={item._id} userId={userId} />
           ))}
         </div>
       )}
     </main>
   );
-};
+}
 
 export default Main;

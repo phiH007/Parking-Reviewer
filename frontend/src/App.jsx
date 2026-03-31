@@ -1,5 +1,4 @@
-// src/App.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Header from './components/header';
 import Main from './components/main';
 import Login from './components/login';
@@ -10,22 +9,35 @@ function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
 
+  function handleLogin(theUser) {
+    setUser(theUser);
+  }
+
+  function handleLogout() {
+    setUser(null);
+  }
+
+  function handleSetActiveTab(tabName) {
+    setActiveTab(tabName);
+  }
+
   return (
     <div className="app-container">
       <Header
         user={user}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onLogout={() => setUser(null)}
+        setActiveTab={handleSetActiveTab}
+        onLogout={handleLogout}
       />
+
       <div className="content-layout">
         {user ? (
           <>
-            {activeTab === 'home' && <Main />}
-            {activeTab === 'my-cars' && <MyCars />}
+            {activeTab === 'home' ? <Main /> : <></>}
+            {activeTab === 'my-cars' ? <MyCars /> : <></>}
           </>
         ) : (
-          <Login onLogin={setUser} />
+          <Login onLogin={handleLogin} />
         )}
       </div>
     </div>
