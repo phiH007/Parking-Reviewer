@@ -7,6 +7,10 @@ router.post('/register', async (req, res) => {
     try {
       const db = getDB();
       let collection = db.collection("users");
+      const existingUser = await collection.findOne({ username: req.body.username });
+      if (existingUser) {
+        return res.send("Username already exists");
+      }
       
       let newUser = req.body;
       newUser.role = 'user'; 

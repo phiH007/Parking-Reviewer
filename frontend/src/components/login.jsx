@@ -48,10 +48,8 @@ function Login(props) {
         },
       });
 
-      // 1. Grab the raw response as text first! This prevents the crash.
       const responseText = await response.text();
 
-      // 2. Check for our backend's specific error messages
       if (responseText === "Invalid Login") {
         setError("Invalid username or password.");
         return;
@@ -61,7 +59,6 @@ function Login(props) {
         return;
       }
 
-      // 3. If it's not an error text, it MUST be our JSON object. Let's parse it!
       const data = JSON.parse(responseText);
 
       if (isRegister) {
@@ -70,7 +67,6 @@ function Login(props) {
         return;
       }
 
-      // 4. FIX: Use `data` directly, NOT `data.user`
       localStorage.setItem('user', JSON.stringify(data));
       onLogin(data); 
 
