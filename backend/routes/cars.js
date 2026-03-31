@@ -63,7 +63,7 @@ router.get('/', async (req, res) => {
 router.post('/', upload.single('image'), async (req, res) => {
   const { userId, plate, make, model, reason } = req.body;
 
-  if (!userId || !plate || !make || !model || !reason) {
+  if (!userId || !plate || !make || !model) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
@@ -75,7 +75,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     plate,
     make,
     model,
-    reason,
+    reason: reason || '',
     imagePath: req.file ? path.posix.join('uploads', req.file.filename) : '',
     imageName: req.file ? req.file.originalname : '',
     createdAt: new Date(),

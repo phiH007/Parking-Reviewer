@@ -1,76 +1,104 @@
 import React, { useEffect, useState } from 'react';
 
-const ViolationTags = ({ carId }) => {
+function ViolationTags({ carId }) {
   const [violations, setViolations] = useState([]);
 
   useEffect(() => {
-    fetch(`/api/violations/car/${carId}`)
-      .then((res) => res.json())
-      .then((data) => setViolations(data.violations || []));
+    async function loadViolations() {
+      try {
+        const response = await fetch(`/api/violations/car/${carId}`);
+        const data = await response.json();
+        setViolations(data.violations || []);
+      } catch (error) {
+        setViolations([]);
+      }
+    }
+
+    loadViolations();
   }, [carId]);
 
-  if (violations.length === 0) return null;
+  if (violations.length === 0) {
+    return null;
+  }
 
   return (
     <div className="violation-tags">
       {violations.map((violation) => (
-        <span className="violation-tag" key={violation._id}>{violation.name}</span>
+        <span className="violation-tag" key={violation._id}>
+          {violation.name}
+        </span>
       ))}
     </div>
   );
-};
+}
 
-const VoteSection = ({ carId, userId }) => {
-  const [voteInfo, setVoteInfo] = useState({
-    upvotes: 0,
-    downvotes: 0,
-    score: 0,
-    currentUserVote: 0,
-  });
-  const [voteError, setVoteError] = useState('');
-
-  const loadVotes = async () => {
-    const query = userId ? `?userId=${userId}` : '';
-    const res = await fetch(`/api/votes/car/${carId}${query}`);
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || 'Could not load votes.');
-    }
-
-    setVoteInfo(data);
-  };
+function VoteSection({ carId, userId }) {
+  const [upvotes, setUpvotes] = useState(0);
+  const [downvotes, setDownvotes] = useState(0);
+  const [score, setScore] = useState(0);
+  const [currentUserVote, setCurrentUserVote] = useState(0);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    loadVotes().catch((err) => setVoteError(err.message));
+    async function loadVotes() {
+      try {
+        setError('');
+
+        let url = `/api/votes/car/${carId}`;
+        if (userId) {
+          url = `${url}?userId=${userId}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || 'Could not load votes.');
+          return;
+        }
+
+        setUpvotes(data.upvotes || 0);
+        setDownvotes(data.downvotes || 0);
+        setScore(data.score || 0);
+        setCurrentUserVote(data.currentUserVote || 0);
+      } catch (loadError) {
+        setError('Could not load votes.');
+      }
+    }
+
+    loadVotes();
   }, [carId, userId]);
 
-  const handleVote = async (value) => {
+  async function handleVote(value) {
     if (!userId) {
-      setVoteError('Log in to vote on a car.');
+      setError('Log in to vote on a car.');
       return;
     }
 
     try {
-      setVoteError('');
+      setError('');
 
-      const res = await fetch('/api/votes', {
+      const response = await fetch('/api/votes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ carId, userId, value }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Could not save vote.');
+      if (!response.ok) {
+        setError(data.error || 'Could not save vote.');
+        return;
       }
 
-      setVoteInfo(data);
-    } catch (err) {
-      setVoteError(err.message);
+      setUpvotes(data.upvotes || 0);
+      setDownvotes(data.downvotes || 0);
+      setScore(data.score || 0);
+      setCurrentUserVote(data.currentUserVote || 0);
+    } catch (saveError) {
+      setError('Could not save vote.');
     }
-  };
+  }
 
   return (
     <div className="card-section">
@@ -78,76 +106,68 @@ const VoteSection = ({ carId, userId }) => {
       <div className="vote-row">
         <button
           type="button"
-          className={`vote-button ${voteInfo.currentUserVote === 1 ? 'selected' : ''}`}
+          className={`vote-button ${currentUserVote === 1 ? 'selected' : ''}`}
           onClick={() => handleVote(1)}
         >
           Upvote
         </button>
         <button
           type="button"
-          className={`vote-button ${voteInfo.currentUserVote === -1 ? 'selected' : ''}`}
+          className={`vote-button ${currentUserVote === -1 ? 'selected' : ''}`}
           onClick={() => handleVote(-1)}
         >
           Downvote
         </button>
       </div>
       <p className="vote-summary">
-        Score: {voteInfo.score} | Upvotes: {voteInfo.upvotes} | Downvotes: {voteInfo.downvotes}
+        Score: {score} | Upvotes: {upvotes} | Downvotes: {downvotes}
       </p>
-      {voteError && <p className="card-message error-text">{voteError}</p>}
+      {error && <p className="card-message error-text">{error}</p>}
     </div>
   );
-};
+}
 
-const CommentSection = ({ carId, userId }) => {
+function CommentSection({ carId, userId }) {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
-  const [commentError, setCommentError] = useState('');
+  const [error, setError] = useState('');
   const [showComments, setShowComments] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
 
-  const handleDeleteComment = async (commentId) => {
-    try {
-      const res = await fetch(`/api/comments/${commentId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not delete comment.');
-      setComments((prev) => prev.filter((c) => c._id !== commentId));
-    } catch (err) {
-      setCommentError(err.message);
-    }
-  };
-
-  const loadComments = async () => {
-    const res = await fetch(`/api/comments/car/${carId}`);
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || 'Could not load comments.');
-    }
-
-    setComments(data.comments || []);
-  };
-
   useEffect(() => {
-    loadComments().catch((err) => setCommentError(err.message));
+    async function loadComments() {
+      try {
+        setError('');
+
+        const response = await fetch(`/api/comments/car/${carId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || 'Could not load comments.');
+          return;
+        }
+
+        setComments(data.comments || []);
+      } catch (loadError) {
+        setError('Could not load comments.');
+      }
+    }
+
+    loadComments();
   }, [carId]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
 
     if (!userId) {
-      setCommentError('Log in to leave a comment.');
+      setError('Log in to leave a comment.');
       return;
     }
 
     try {
-      setCommentError('');
+      setError('');
 
-      const res = await fetch('/api/comments', {
+      const response = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -157,20 +177,45 @@ const CommentSection = ({ carId, userId }) => {
         }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Could not save comment.');
+      if (!response.ok) {
+        setError(data.error || 'Could not save comment.');
+        return;
       }
 
-      setComments((prev) => [data.comment, ...prev]);
+      setComments([data.comment, ...comments]);
       setCommentText('');
       setShowComments(true);
       setShowCommentForm(false);
-    } catch (err) {
-      setCommentError(err.message);
+    } catch (saveError) {
+      setError('Could not save comment.');
     }
-  };
+  }
+
+  async function handleDeleteComment(commentId) {
+    try {
+      setError('');
+
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Could not delete comment.');
+        return;
+      }
+
+      const nextComments = comments.filter((comment) => comment._id !== commentId);
+      setComments(nextComments);
+    } catch (deleteError) {
+      setError('Could not delete comment.');
+    }
+  }
 
   return (
     <div className="card-section">
@@ -178,16 +223,17 @@ const CommentSection = ({ carId, userId }) => {
         <button
           type="button"
           className="comment-toggle-button"
-          onClick={() => setShowComments((prev) => !prev)}
+          onClick={() => setShowComments(!showComments)}
         >
           {showComments ? 'Hide Comments' : `Show Comments (${comments.length})`}
         </button>
+
         <button
           type="button"
           className="comment-add-button"
           onClick={() => {
-            setShowCommentForm((prev) => !prev);
-            setCommentError('');
+            setShowCommentForm(!showCommentForm);
+            setError('');
           }}
         >
           +
@@ -198,72 +244,89 @@ const CommentSection = ({ carId, userId }) => {
         <form className="comment-form" onSubmit={handleSubmit}>
           <textarea
             value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
+            onChange={(event) => setCommentText(event.target.value)}
             placeholder="Write a short comment"
           />
           <button type="submit">Add Comment</button>
         </form>
       )}
 
-      {commentError && <p className="card-message error-text">{commentError}</p>}
+      {error && <p className="card-message error-text">{error}</p>}
 
-      {showComments && (
-        comments.length === 0 ? (
-          <p className="card-message">No comments yet.</p>
-        ) : (
-          <div className="comment-list">
-            {comments.map((comment) => (
-              <div className="comment-box" key={comment._id}>
-                <p className="comment-name">{comment.username}</p>
-                <p className="comment-text">{comment.text}</p>
-                {comment.userId === userId && (
-                  <button
-                    type="button"
-                    className="delete-button"
-                    onClick={() => handleDeleteComment(comment._id)}
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )
+      {showComments && comments.length === 0 && (
+        <p className="card-message">No comments yet.</p>
+      )}
+
+      {showComments && comments.length > 0 && (
+        <div className="comment-list">
+          {comments.map((comment) => (
+            <div className="comment-box" key={comment._id}>
+              <p className="comment-name">{comment.username}</p>
+              <p className="comment-text">{comment.text}</p>
+              {comment.userId === userId && (
+                <button
+                  type="button"
+                  className="delete-button"
+                  onClick={() => handleDeleteComment(comment._id)}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
-};
+}
 
-const CarCard = ({ car, userId, onCarDeleted, showDelete = false }) => {
+function CarCard({ car, userId, onCarDeleted, showDelete = false }) {
   const [deleteError, setDeleteError] = useState('');
 
-  const handleDeleteCar = async () => {
-    if (!window.confirm('Are you sure you want to delete this submission?')) return;
+  async function handleDeleteCar() {
+    const confirmed = window.confirm('Are you sure you want to delete this submission?');
+    if (!confirmed) {
+      return;
+    }
 
     try {
-      const res = await fetch(`/api/cars/${car._id}`, {
+      setDeleteError('');
+
+      const response = await fetch(`/api/cars/${car._id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, requestingUserRole: 'user' }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not delete car.');
+      const data = await response.json();
 
-      if (onCarDeleted) onCarDeleted(car._id);
-    } catch (err) {
-      setDeleteError(err.message);
+      if (!response.ok) {
+        setDeleteError(data.error || 'Could not delete car.');
+        return;
+      }
+
+      if (onCarDeleted) {
+        onCarDeleted(car._id);
+      }
+    } catch (error) {
+      setDeleteError('Could not delete car.');
     }
-  };
+  }
 
   return (
     <div className="main-card" style={{ position: 'relative' }}>
       {showDelete && car.userId === userId && (
-        <button type="button" className="delete-button card-delete-corner" onClick={handleDeleteCar}>
+        <button
+          type="button"
+          className="delete-button card-delete-corner"
+          onClick={handleDeleteCar}
+        >
           Delete
         </button>
       )}
+
       <h3>{car.plate}</h3>
+
       {car.imageUrl && (
         <img
           src={car.imageUrl}
@@ -271,14 +334,18 @@ const CarCard = ({ car, userId, onCarDeleted, showDelete = false }) => {
           className="car-report-image"
         />
       )}
+
       <p>{car.make} {car.model}</p>
-      <p>{car.reason}</p>
+      {car.reason && <p>{car.reason}</p>}
+
       <ViolationTags carId={car._id} />
+
       {deleteError && <p className="card-message error-text">{deleteError}</p>}
+
       <VoteSection carId={car._id} userId={userId} />
       <CommentSection carId={car._id} userId={userId} />
     </div>
   );
-};
+}
 
 export default CarCard;
