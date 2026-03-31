@@ -106,6 +106,21 @@ const CommentSection = ({ carId, userId }) => {
   const [showComments, setShowComments] = useState(false);
   const [showCommentForm, setShowCommentForm] = useState(false);
 
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const res = await fetch(`/api/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not delete comment.');
+      setComments((prev) => prev.filter((c) => c._id !== commentId));
+    } catch (err) {
+      setCommentError(err.message);
+    }
+  };
+
   const loadComments = async () => {
     const res = await fetch(`/api/comments/car/${carId}`);
     const data = await res.json();
@@ -201,6 +216,15 @@ const CommentSection = ({ carId, userId }) => {
               <div className="comment-box" key={comment._id}>
                 <p className="comment-name">{comment.username}</p>
                 <p className="comment-text">{comment.text}</p>
+                {comment.userId === userId && (
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() => handleDeleteComment(comment._id)}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -210,9 +234,35 @@ const CommentSection = ({ carId, userId }) => {
   );
 };
 
-const CarCard = ({ car, userId }) => {
+const CarCard = ({ car, userId, onCarDeleted, showDelete = false }) => {
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleDeleteCar = async () => {
+    if (!window.confirm('Are you sure you want to delete this submission?')) return;
+
+    try {
+      const res = await fetch(`/api/cars/${car._id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, requestingUserRole: 'user' }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not delete car.');
+
+      if (onCarDeleted) onCarDeleted(car._id);
+    } catch (err) {
+      setDeleteError(err.message);
+    }
+  };
+
   return (
-    <div className="main-card">
+    <div className="main-card" style={{ position: 'relative' }}>
+      {showDelete && car.userId === userId && (
+        <button type="button" className="delete-button card-delete-corner" onClick={handleDeleteCar}>
+          Delete
+        </button>
+      )}
       <h3>{car.plate}</h3>
       {car.imageUrl && (
         <img
@@ -224,6 +274,7 @@ const CarCard = ({ car, userId }) => {
       <p>{car.make} {car.model}</p>
       <p>{car.reason}</p>
       <ViolationTags carId={car._id} />
+      {deleteError && <p className="card-message error-text">{deleteError}</p>}
       <VoteSection carId={car._id} userId={userId} />
       <CommentSection carId={car._id} userId={userId} />
     </div>

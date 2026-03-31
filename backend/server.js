@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const { connectDB } = require('./db');
+const { connectDB, getDB } = require('./db');
+const { seedViolations } = require('./seed');
 const authRoutes = require('./routes/auth');
 const carRoutes = require('./routes/cars');
 const violationRoutes = require('./routes/violations');
@@ -26,7 +27,8 @@ app.get('/', (req, res) => {
   res.send('Parking Reviewer API');
 });
 
-connectDB().then(() => {
+connectDB().then(async () => {
+  await seedViolations(getDB());
   app.listen(PORT, () => {
     console.log('Now listening on port ' + PORT);
   });

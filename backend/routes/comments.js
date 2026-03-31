@@ -92,4 +92,26 @@ router.post('/', async (req, res) => {
   });
 });
 
+// DELETE /api/comments/:id - delete a comment (owner or admin)
+router.delete('/:id', async (req, res) => {
+  const { userId, requestingUserRole } = req.body;
+
+  const commentObjectId = toObjectId(req.params.id);
+  if (!commentObjectId) return res.status(400).json({ error: 'Invalid comment id.' });
+
+  const db = getDB();
+  const comment = await db.collection('comments').findOne({ _id: commentObjectId });
+  if (!comment) return res.status(404).json({ error: 'Comment not found.' });
+
+  const isOwner = comment.userId === userId;
+  const isAdmin = requestingUserRole === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return res.status(403).json({ error: 'Not authorized to delete this comment.' });
+  }
+
+  await db.collection('comments').deleteOne({ _id: commentObjectId });
+  res.json({ message: 'Comment deleted.' });
+});
+
 module.exports = router;

@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const { getDB } = require('../db');
+const { ObjectId } = require('mongodb');
 
 const router = Router();
 const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -84,6 +85,32 @@ router.post('/', upload.single('image'), async (req, res) => {
     message: 'Car report saved.',
     carId: result.insertedId,
   });
+});
+
+// DELETE /api/cars/:id - delete a submission (owner or admin)
+router.delete('/:id', async (req, res) => {
+  const { userId, requestingUserRole } = req.body;
+
+  const db = getDB();
+  let carId;
+  try {
+    carId = new ObjectId(req.params.id);
+  } catch {
+    return res.status(400).json({ error: 'Invalid car id.' });
+  }
+
+  const car = await db.collection('cars').findOne({ _id: carId });
+  if (!car) return res.status(404).json({ error: 'Car not found.' });
+
+  const isOwner = car.userId === userId;
+  const isAdmin = requestingUserRole === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return res.status(403).json({ error: 'Not authorized to delete this submission.' });
+  }
+
+  await db.collection('cars').deleteOne({ _id: carId });
+  res.json({ message: 'Car deleted.' });
 });
 
 router.use((err, _req, res, next) => {

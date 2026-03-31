@@ -70,7 +70,13 @@ const MyCars = () => {
       ) : (
         <div className="card-container">
           {cars.map((car) => (
-            <CarCard car={car} key={car._id} userId={userId} />
+            <CarCard
+              car={car}
+              key={car._id}
+              userId={userId}
+              showDelete={true}
+              onCarDeleted={(deletedId) => setCars((prev) => prev.filter((c) => c._id !== deletedId))}
+            />
           ))}
         </div>
       )}
