@@ -6,7 +6,7 @@ const { getDB } = require('../db');
 
 const router = express.Router();
 
-// Minimal Multer setup for image uploads
+// setup for image uploads
 const storage = multer.diskStorage({
   destination: 'uploads/',
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
@@ -31,7 +31,7 @@ router.post('/', upload.single('image'), async (req, res) => {
   try {
     const db = getDB();
     let newCar = {
-      ...req.body, // Dumps plate, make, model, userId, reason straight in!
+      ...req.body,
       imagePath: req.file ? `uploads/${req.file.filename}` : '',
       createdAt: new Date()
     };

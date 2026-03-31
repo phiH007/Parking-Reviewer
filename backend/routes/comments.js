@@ -4,7 +4,6 @@ const { getDB } = require('../db');
 const router = express.Router();
 
 // GET /api/comments/car/:carId
-// Just grabs the comments and sends them. No messy user joins!
 router.get('/car/:carId', async (req, res) => {
   try {
     const db = getDB();
@@ -21,7 +20,6 @@ router.get('/car/:carId', async (req, res) => {
 });
 
 // POST /api/comments
-// Trusts the frontend to send the right data (including username)
 router.post('/', async (req, res) => {
   try {
     const db = getDB();
@@ -29,7 +27,7 @@ router.post('/', async (req, res) => {
     let newComment = {
       carId: new ObjectId(req.body.carId),
       userId: new ObjectId(req.body.userId),
-      username: req.body.username, // Shoving the username straight in!
+      username: req.body.username,
       text: req.body.text,
       createdAt: new Date()
     };
@@ -43,7 +41,6 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE /api/comments/:id
-// Trusts that the frontend only shows the delete button to the right user/admin
 router.delete('/:id', async (req, res) => {
   try {
     const db = getDB();

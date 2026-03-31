@@ -29,7 +29,6 @@ function CarCard({ car, user, showDelete, onCarDeleted }) {
     e.preventDefault();
     if (!user) return alert("Log in to comment!");
     
-    // MVP: We pass the username directly to the backend!
     await fetch('/api/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,7 +52,7 @@ function CarCard({ car, user, showDelete, onCarDeleted }) {
       )}
 
       <h3>{car.plate}</h3>
-      {car.imageUrl && <img src={car.imageUrl} alt="Car" className="car-report-image" />}
+      {car.imagePath && <img src={`/${car.imagePath}`} alt="Car" className="car-report-image" />}
       <p>{car.make} {car.model}</p>
 
       <div className="violation-tags">

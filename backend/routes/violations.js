@@ -45,7 +45,7 @@ router.post('/car', async (req, res) => {
     let newTag = {
       carId: new ObjectId(req.body.carId),
       violationId: new ObjectId(req.body.violationId),
-      violationName: req.body.violationName, // <-- We save the name directly here now!
+      violationName: req.body.violationName,
       taggedBy: req.body.userId,
       createdAt: new Date()
     };
@@ -60,7 +60,6 @@ router.post('/car', async (req, res) => {
 router.get('/car/:carId', async (req, res) => {
   try {
     const db = getDB();
-    // Because we saved the name in the POST route, we just return this directly! No joins needed.
     const carViolations = await db.collection('carViolations')
       .find({ carId: new ObjectId(req.params.carId) })
       .toArray();

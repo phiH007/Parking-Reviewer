@@ -2,22 +2,20 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 85vw;
-  max-width: 1200px;
-  align-self: center;
+  width: 90vw;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .content-layout {
   flex: 1;
-  min-height: 0;
-  background-color: rgba(0, 0, 0, 0.35);
-  border-left: 2px solid #6f5a12;
-  border-right: 2px solid #6f5a12;
-  border-bottom: 2px solid #6f5a12;
+  background-color: #1a1a1a;
+  padding: 24px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 768px) {
-  .app-container {
-    width: 94vw;
-  }
+  .app-container { width: 95vw; }
+  .content-layout { padding: 16px; }
 }

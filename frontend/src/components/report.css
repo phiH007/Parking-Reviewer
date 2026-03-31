@@ -1,0 +1,66 @@
+.main-content form {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-top: 4px solid #facc15; 
+  border-radius: 8px;
+  padding: 32px;
+  margin-top: 24px;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.main-content form > button[type="submit"] {
+  width: 100%;
+  margin-top: 16px;
+  font-size: 1.05rem;
+}
+
+.main-content input[type="file"] {
+  padding: 12px;
+  background-color: #262626;
+  border: 1px dashed #555;
+  color: #a3a3a3;
+  cursor: pointer;
+}
+
+.main-content input[type="file"]:hover {
+  border-color: #facc15;
+  color: #e5e5e5;
+}
+
+.violation-checkboxes {
+  background-color: #262626;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.violation-checkboxes p {
+  margin-top: 0;
+  color: #facc15;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.violation-checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #e5e5e5;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.violation-checkbox-label:hover {
+  color: #facc15;
+}
+
+.violation-checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0 12px 0 0;
+  accent-color: #facc15;
+  transform: scale(1.2);
+  cursor: pointer;
+}

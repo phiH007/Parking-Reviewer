@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import './report.css';
 
 function ReportIdiot({ onBack, onSuccess }) {
   const [plate, setPlate] = useState('');
@@ -23,7 +24,7 @@ function ReportIdiot({ onBack, onSuccess }) {
 
     try {
       const formData = new FormData();
-      formData.append('userId', savedUser._id); // Make sure we use _id from our new backend!
+      formData.append('userId', savedUser._id);
       formData.append('plate', plate);
       formData.append('make', make);
       formData.append('model', model);
@@ -32,7 +33,6 @@ function ReportIdiot({ onBack, onSuccess }) {
       const res = await fetch('/api/cars', { method: 'POST', body: formData });
       const data = await res.json();
 
-      // MVP Tagging: Send the ID *and* the Name to our new backend route
       for (const vId of selectedViolations) {
         const vName = availableViolations.find(v => v._id === vId).name;
         await fetch('/api/violations/car', {

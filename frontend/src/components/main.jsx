@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import CarCard from './CarCard';
+import './main.css';
 
 function Main() {
   const [cars, setCars] = useState([]);
