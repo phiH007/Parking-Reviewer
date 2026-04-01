@@ -151,4 +151,42 @@ router.patch('/users/:id/role', async (req, res) => {
   }
 });
 
+// DELETE /api/auth/users/:id
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const { requestingRole, requestingUserId } = req.body;
+
+    if (requestingRole !== 'admin') {
+      return res.status(403).send('Only admins can delete users.');
+    }
+
+    if (String(requestingUserId) === String(req.params.id)) {
+      return res.status(400).send('You cannot delete your own account.');
+    }
+
+    const result = await db.collection('users').deleteOne({ _id: new ObjectId(req.params.id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send('User not found.');
+    }
+
+    // delete user's cars and all comments on those cars
+    const userCars = await db.collection('cars').find({ userId: req.params.id }).toArray();
+    const carIds = userCars.map(c => c._id);
+    if (carIds.length > 0) {
+      await db.collection('comments').deleteMany({ carId: { $in: carIds } });
+    }
+    await db.collection('cars').deleteMany({ userId: req.params.id });
+
+    // delete comments the user left on other cars
+    await db.collection('comments').deleteMany({ userId: new ObjectId(req.params.id) });
+
+    res.send('User deleted.');
+  } catch (e) {
+    console.log(e);
+    res.send('Error');
+  }
+});
+
 module.exports = router;

@@ -68,6 +68,7 @@ router.delete('/:id', async (req, res) => {
     }
 
     await db.collection('cars').deleteOne({ _id: carId });
+    await db.collection('comments').deleteMany({ carId: carId });
     res.send('Car deleted.');
   } catch (e) {
     console.log(e); res.send('Error');

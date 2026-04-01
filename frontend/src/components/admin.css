@@ -88,6 +88,29 @@
   color: #111111;
 }
 
+.admin-user-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── ADDED: violation form styling ── */
+.admin-violation-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.admin-violation-form input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  background-color: #1f1f1f;
+  color: #fff;
+}
+/* ── END ADDED ── */
+
 @media (max-width: 768px) {
   .admin-panel {
     flex-direction: column;

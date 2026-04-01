@@ -3,6 +3,23 @@ const { ObjectId } = require('mongodb');
 const { getDB } = require('../db');
 const router = express.Router();
 
+// GET /api/comments/all - get all comments (admin only)
+router.get('/all', async (_req, res) => {
+  try {
+    const db = getDB();
+    const comments = await db.collection('comments').find().sort({ createdAt: -1 }).toArray();
+    const userIds = [...new Set(comments.map(c => c.userId).filter(Boolean))];
+    const users = await db.collection('users').find({ _id: { $in: userIds } }).toArray();
+    const usernamesById = {};
+    users.forEach(u => { usernamesById[String(u._id)] = u.username; });
+    const commentsWithNames = comments.map(c => ({ ...c, username: usernamesById[String(c.userId)] || 'Unknown' }));
+    res.json({ comments: commentsWithNames });
+  } catch (e) {
+    console.log(e);
+    res.send('Error');
+  }
+});
+
 // GET /api/comments/car/:carId
 router.get('/car/:carId', async (req, res) => {
   try {
