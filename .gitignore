@@ -13,10 +13,8 @@ dist
 dist-ssr
 *.local
 backend/uploads/*
-
+.gitignore
 # Environment variables
-.env
-backend/.env
 
 # Editor directories and files
 .vscode/*
