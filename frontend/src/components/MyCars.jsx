@@ -25,8 +25,8 @@ function MyCars() {
 
   return (
     <main className="main-content">
-      <h2>My Reported Cars</h2>
-      <button onClick={() => setShowReportForm(true)}>Report a Car</button>
+      <h2>My Cars</h2>
+      <button onClick={() => setShowReportForm(true)}>Add New Report</button>
 
       <div className="card-container">
         {cars.map(item => (

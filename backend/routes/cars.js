@@ -46,10 +46,32 @@ router.post('/', upload.single('image'), async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const db = getDB();
-    await db.collection('cars').deleteOne({ _id: new ObjectId(req.params.id) });
-    res.send("Car deleted.");
+    const carId = new ObjectId(req.params.id);
+    const userId = req.body.userId;
+    const role = req.body.role;
+
+    if (!userId) {
+      return res.status(400).send('User id is required.');
+    }
+
+    const car = await db.collection('cars').findOne({ _id: carId });
+
+    if (!car) {
+      return res.status(404).send('Car not found.');
+    }
+
+    const isOwner = String(car.userId) === String(userId);
+    const isAdmin = role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).send('You can only delete your own cars unless you are an admin.');
+    }
+
+    await db.collection('cars').deleteOne({ _id: carId });
+    await db.collection('comments').deleteMany({ carId: carId });
+    res.send('Car deleted.');
   } catch (e) {
-    console.log(e); res.send("Error");
+    console.log(e); res.send('Error');
   }
 });
 

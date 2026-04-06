@@ -19,4 +19,19 @@ async function seedViolations(db) {
   console.log('Seeded default violations.');
 }
 
-module.exports = { seedViolations };
+async function seedDefaultAdmin(db) {
+  const users = db.collection('users');
+  const existingAdmin = await users.findOne({ username: 'admin' });
+
+  if (existingAdmin) return;
+
+  await users.insertOne({
+    username: 'admin',
+    password: 'admin',
+    role: 'admin',
+  });
+
+  console.log('Seeded default admin user.');
+}
+
+module.exports = { seedViolations, seedDefaultAdmin };

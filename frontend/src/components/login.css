@@ -17,6 +17,17 @@
 
 .login-box h2 { text-align: center; margin-top: 0; margin-bottom: 24px; }
 
+.login-box select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #c89b1d;
+  border-radius: 6px;
+  background-color: #fff8dc;
+  color: #111111;
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+
 .login-toggle {
   background: none;
   color: #facc15;

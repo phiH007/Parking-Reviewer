@@ -1,0 +1,131 @@
+.admin-panel {
+  display: flex;
+  gap: 24px;
+  min-height: 500px;
+}
+
+.admin-sidebar {
+  width: 220px;
+  background-color: #262626;
+  border-radius: 6px;
+  padding: 20px;
+  border: 1px solid #333;
+}
+
+.admin-sidebar h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.admin-sidebar-button {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.admin-sidebar-button.active {
+  background-color: #facc15;
+  color: #1a1a1a;
+}
+
+.admin-content {
+  flex: 1;
+  background-color: #262626;
+  border-radius: 6px;
+  padding: 20px;
+  border: 1px solid #333;
+}
+
+.admin-content h3 {
+  margin-top: 0;
+}
+
+.admin-message {
+  color: #facc15;
+  font-weight: bold;
+}
+
+.admin-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.admin-user-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background-color: #1f1f1f;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+
+.admin-user-name {
+  margin: 0 0 6px;
+  font-weight: bold;
+}
+
+.admin-user-role-text {
+  margin: 0;
+  color: #d4d4d4;
+}
+
+.admin-self-label {
+  margin: 0;
+  color: #facc15;
+  font-weight: 600;
+}
+
+.admin-role-select {
+  width: 140px;
+  padding: 8px 10px;
+  border: 2px solid #c89b1d;
+  border-radius: 6px;
+  background-color: #fff8dc;
+  color: #111111;
+}
+
+.admin-user-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── ADDED: violation form styling ── */
+.admin-violation-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.admin-violation-form input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  background-color: #1f1f1f;
+  color: #fff;
+}
+/* ── END ADDED ── */
+
+@media (max-width: 768px) {
+  .admin-panel {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+  }
+
+  .admin-user-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-role-select {
+    width: 100%;
+  }
+}
